@@ -1,6 +1,6 @@
 # LH_Stats
 
-Version: 1.0.2
+Version: 1.1.0
 
 **A compact World of Warcraft addon for WoW Forever Beta.**
 
@@ -12,7 +12,7 @@ LH_Stats displays your gold, silver, copper, free bag slots, and remaining ammun
 - Free slots in the backpack and regular bags; excludes specialty bags, the bank, and keyring.
 - Remaining selected ammunition with its item icon, including ammunition carried in quivers and ammo pouches.
 - Automatic updates and tooltips with additional details.
-- Freely draggable bar with its position saved per character.
+- Lockable bar: unlock it to move it and resize width and height; position and size are saved per character.
 - Matches the width of LH_ExpBar or the minimap. LH_ExpBar is optional.
 
 ## Installation
@@ -25,10 +25,10 @@ LH_Stats displays your gold, silver, copper, free bag slots, and remaining ammun
 
 The bar automatically appears below LH_ExpBar, if available, or below the minimap. The bag number shows only free slots. Ammo shows the remaining count of your currently selected ammunition, or `0` if none is selected.
 
-Hold the **left mouse button** on the bar to drag it. Use the following command to reset its position:
+Open WoW Settings > AddOns > LH Tweaks > LH Stats. **Unlock the stats bar** shows a preview backdrop and a small circle below the right edge: left-drag the bar to move it, drag the circle to resize width and height. The page also has width/height sliders (50-200%) and **Reset layout**, which matches the width of LH_ExpBar (or the minimap), restores the default height and places the bar 5 pixels below LH_ExpBar. The bar is locked by default.
 
 ```text
-/lh_stats reset
+/lh_stats unlock | lock | reset
 ```
 
 ## Compatibility
@@ -42,6 +42,11 @@ Replace the old folder with **LH_Stats** and fully restart WoW. Do not enable bo
 To retain your position, close WoW and back up each character's `WTF/Account/<account>/<realm>/<character>/SavedVariables/MiniStats.lua` file. Copy it to `LH_Stats.lua` in the same SavedVariables folder, then change `MiniStatsDB` to `LH_StatsDB` inside the copy. Migrate before first using the renamed addon; do not overwrite an existing `LH_Stats.lua` containing settings you want to keep. Without migration, the display uses its default position.
 
 ## Changelog
+
+### 1.1.0 - 2026-10-21
+
+- Added LH Tweaks grouping (title, group, part-of metadata) and the shared LH Tweaks icon (`Media/Icon`).
+- Added a native LH Stats settings page: unlock/lock, width and height sliders, resize circle and Reset layout (LH_ExpBar width, 5 pixels below it). The bar is now locked by default; `/lh_stats unlock` and `lock` were added.
 
 ### 1.0.2 - 2026-10-21
 

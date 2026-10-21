@@ -1,17 +1,30 @@
 local ADDON_NAME = ...
-local bar, cells
+local HEIGHT = 20
+local bar, cells, handle, resizing, moving
+local Addon = {}
+LH_Stats = Addon
 local initialized = false
 local freeSlots, totalSlots = 0, 0
 local ammoCount = 0
+local function StandardWidth()
+    local source = LH_ExpBarFrame or Minimap
+    if not source then return 140 end
+    return source:GetWidth() * source:GetEffectiveScale() / bar:GetEffectiveScale()
+end
+local function UpdateSize()
+    bar:SetSize(math.max(70, StandardWidth() * LH_StatsDB.widthFactor), HEIGHT * LH_StatsDB.heightFactor)
+end
 local function RestorePosition()
     bar:ClearAllPoints()
     local p = LH_StatsDB.position
     if type(p) == "table" and type(p.x) == "number" and type(p.y) == "number" then
         bar:SetPoint("CENTER", UIParent, "BOTTOMLEFT", p.x, p.y)
     elseif LH_ExpBarFrame and LH_ExpBarFrame:IsShown() then
-        bar:SetPoint("TOP", LH_ExpBarFrame, "BOTTOM", 0, -3)
+        bar:SetPoint("TOP", LH_ExpBarFrame, "BOTTOM", 0, -5)
     else
-        bar:SetPoint("TOP", Minimap or UIParent, "BOTTOM", 0, -31)
+        local cluster = MinimapCluster
+        local container = cluster and cluster.MinimapContainer
+        bar:SetPoint("TOP", container and container.PlayerCoords or Minimap or UIParent, "BOTTOM", 0, -10)
     end
 end
 local function SavePosition()
@@ -21,12 +34,21 @@ local function SavePosition()
     LH_StatsDB.position = { x = x * scale, y = y * scale }
     RestorePosition()
 end
+local function StopMoving()
+    bar:StopMovingOrSizing()
+    if moving then moving = nil; SavePosition() end
+end
+local function FinishResize()
+    if resizing then
+        resizing = nil
+        SavePosition()
+        if Addon.RefreshSettings then Addon:RefreshSettings() end
+    end
+end
 local function Layout()
-    local source = LH_ExpBarFrame or Minimap
-    if not source then return end
-    local width = source:GetWidth() * source:GetEffectiveScale() / bar:GetEffectiveScale()
+    UpdateSize()
+    local width = bar:GetWidth()
     if width <= 0 then return end
-    bar:SetWidth(width)
     -- Spread the stats across the bar; shrink text only if space runs out.
     local textWidths, totalTextWidth = {}, 0
     for i, cell in ipairs(cells) do
@@ -38,7 +60,7 @@ local function Layout()
     local textScale = math.min(1, available / totalTextWidth)
     local gap = math.max(0, (width - 18 * #cells - totalTextWidth * textScale) / (#cells - 1))
     for i, cell in ipairs(cells) do
-        cell:SetWidth(18 + textWidths[i] * textScale)
+        cell:SetSize(18 + textWidths[i] * textScale, bar:GetHeight())
         cell:ClearAllPoints()
         if i == 1 then
             cell:SetPoint("LEFT", bar, "LEFT", 0, 0)
@@ -90,22 +112,36 @@ local function ShowTooltip(self)
         GameTooltip:AddLine(string.format("%d remaining", ammoCount), 1, 1, 1)
         GameTooltip:AddLine("Currently selected ammunition in carried bags", 0.7, 0.7, 0.7)
     end
-    GameTooltip:AddLine("Hold the left mouse button and drag to move", 0.7, 0.7, 0.7)
+    if not LH_StatsDB.locked then GameTooltip:AddLine("Hold the left mouse button and drag to move", 0.7, 0.7, 0.7) end
     GameTooltip:Show()
 end
 local function CreateBar()
     LH_StatsDB = type(LH_StatsDB) == "table" and LH_StatsDB or {}
+    if LH_StatsDB.locked == nil then LH_StatsDB.locked = true end
+    for _, key in ipairs({"widthFactor", "heightFactor"}) do
+        local value = LH_StatsDB[key]
+        LH_StatsDB[key] = type(value) == "number" and math.max(0.5, math.min(2, value)) or 1
+    end
     bar = CreateFrame("Frame", "LH_StatsFrame", UIParent)
-    bar:SetSize(140, 20)
+    bar:SetSize(140, HEIGHT)
     bar:SetFrameStrata("MEDIUM")
     bar:SetMovable(true)
     bar:SetClampedToScreen(true)
-    bar:EnableMouse(true)
+    bar:EnableMouse(not LH_StatsDB.locked)
     bar:RegisterForDrag("LeftButton")
-    local function startDrag() GameTooltip:Hide(); bar:StartMoving() end
-    local function stopDrag() bar:StopMovingOrSizing(); SavePosition() end
+    -- A faint backdrop makes the otherwise transparent bar visible while unlocked.
+    bar.preview = bar:CreateTexture(nil, "BACKGROUND")
+    bar.preview:SetAllPoints()
+    bar.preview:SetColorTexture(0, 0, 0, 0.5)
+    bar.preview:SetShown(not LH_StatsDB.locked)
+    local function startDrag()
+        if LH_StatsDB.locked or resizing then return end
+        GameTooltip:Hide(); moving = true; bar:StartMoving()
+    end
+    local function stopDrag() StopMoving() end
     bar:SetScript("OnDragStart", startDrag)
     bar:SetScript("OnDragStop", stopDrag)
+    bar:SetScript("OnHide", function() StopMoving(); FinishResize() end)
     cells = {}
     local icons = { "Interface\\MoneyFrame\\UI-GoldIcon", "Interface\\Icons\\INV_Misc_Bag_08", "Interface\\Icons\\INV_Ammo_Arrow_02" }
     for i = 1, #icons do
@@ -139,6 +175,30 @@ local function CreateBar()
         cells[i] = cell
     end
     cells[1].text:SetTextColor(1, 0.82, 0)
+    handle = CreateFrame("Button", "LH_StatsResizeHandle", bar)
+    handle:SetSize(16, 16)
+    handle:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
+    handle:SetFrameLevel(bar:GetFrameLevel() + 10)
+    handle:EnableMouse(true)
+    local circle = handle:CreateTexture(nil, "ARTWORK")
+    circle:SetAllPoints()
+    circle:SetTexture("Interface\\Buttons\\UI-RadioButton")
+    circle:SetTexCoord(0.25, 0.5, 0, 1)
+    handle:SetScript("OnMouseDown", function(_, button)
+        if button ~= "LeftButton" or LH_StatsDB.locked then return end
+        StopMoving()
+        local x, y = GetCursorPosition()
+        local scale = bar:GetEffectiveScale()
+        local parentScale = UIParent:GetEffectiveScale()
+        local left, top = bar:GetLeft(), bar:GetTop()
+        bar:ClearAllPoints()
+        bar:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left * scale / parentScale, top * scale / parentScale)
+        resizing = {x = x / scale, y = y / scale, width = LH_StatsDB.widthFactor,
+            height = LH_StatsDB.heightFactor, base = StandardWidth()}
+    end)
+    handle:SetScript("OnMouseUp", function(_, button) if button == "LeftButton" then FinishResize() end end)
+    handle:SetScript("OnHide", FinishResize)
+    handle:SetShown(not LH_StatsDB.locked)
     initialized = true
     RestorePosition()
     UpdateStats()
@@ -158,6 +218,16 @@ events:SetScript("OnEvent", function(_, event, name)
 end)
 local elapsedSinceCheck = 0
 events:SetScript("OnUpdate", function(_, elapsed)
+    if resizing then
+        if not IsMouseButtonDown("LeftButton") then FinishResize()
+        else
+            local x, y = GetCursorPosition()
+            local scale = bar:GetEffectiveScale()
+            LH_StatsDB.widthFactor = math.max(0.5, math.min(2, resizing.width + (x / scale - resizing.x) / resizing.base))
+            LH_StatsDB.heightFactor = math.max(0.5, math.min(2, resizing.height + (resizing.y - y / scale) / HEIGHT))
+            Layout()
+        end
+    end
     elapsedSinceCheck = elapsedSinceCheck + elapsed
     if elapsedSinceCheck >= 0.5 then
         elapsedSinceCheck = 0
@@ -165,13 +235,36 @@ events:SetScript("OnUpdate", function(_, elapsed)
     end
 end)
 SLASH_LH_STATS1 = "/lh_stats"
+function Addon:IsUnlocked() return LH_StatsDB and LH_StatsDB.locked == false or false end
+function Addon:GetSizeFactor(key) return LH_StatsDB and LH_StatsDB[key] or 1 end
+function Addon:SetSizeFactor(key, value)
+    if not initialized or (key ~= "widthFactor" and key ~= "heightFactor") or type(value) ~= "number" then return end
+    FinishResize()
+    LH_StatsDB[key] = math.max(0.5, math.min(2, value))
+    Layout()
+    if self.RefreshSettings then self:RefreshSettings() end
+end
 SlashCmdList.LH_STATS = function(message)
     if not initialized then return end
-    if (message or ""):lower():match("^%s*reset%s*$") then
+    local command = (message or ""):lower():match("^%s*(.-)%s*$")
+    if command == "lock" or command == "unlock" then
+        StopMoving()
+        FinishResize()
+        GameTooltip:Hide()
+        LH_StatsDB.locked = command == "lock"
+        bar:EnableMouse(not LH_StatsDB.locked)
+        bar.preview:SetShown(not LH_StatsDB.locked)
+        handle:SetShown(not LH_StatsDB.locked)
+        print(LH_StatsDB.locked and "LH_Stats: Position locked." or "LH_Stats: Drag the bar to move; drag the circle to resize.")
+    elseif command == "reset" then
+        StopMoving()
+        FinishResize()
         LH_StatsDB.position = nil
+        LH_StatsDB.widthFactor, LH_StatsDB.heightFactor = 1, 1
         RestorePosition()
         UpdateStats()
     else
-        print("LH_Stats: /lh_stats reset - Reset position. Hold the left mouse button and drag to move.")
+        print("LH_Stats: /lh_stats unlock | lock | reset")
     end
+    if Addon.RefreshSettings then Addon:RefreshSettings() end
 end
