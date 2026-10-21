@@ -1,0 +1,10 @@
+## Interface: 16001
+## Title: LH_Stats
+## Notes: Compact draggable money, free bag slots, and remaining ammo below the minimap.
+## IconTexture: Interface\AddOns\LH_Stats\LH_StatsIcon
+## Author: LH_Stats
+## Version: 1.0.1
+## OptionalDeps: LH_ExpBar
+## SavedVariablesPerCharacter: LH_StatsDB
+
+LH_Stats.lua

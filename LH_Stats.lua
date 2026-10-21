@@ -5,11 +5,11 @@ local freeSlots, totalSlots = 0, 0
 local ammoCount = 0
 local function RestorePosition()
     bar:ClearAllPoints()
-    local p = MiniStatsDB.position
+    local p = LH_StatsDB.position
     if type(p) == "table" and type(p.x) == "number" and type(p.y) == "number" then
         bar:SetPoint("CENTER", UIParent, "BOTTOMLEFT", p.x, p.y)
-    elseif MiniExpBarFrame and MiniExpBarFrame:IsShown() then
-        bar:SetPoint("TOP", MiniExpBarFrame, "BOTTOM", 0, -3)
+    elseif LH_ExpBarFrame and LH_ExpBarFrame:IsShown() then
+        bar:SetPoint("TOP", LH_ExpBarFrame, "BOTTOM", 0, -3)
     else
         bar:SetPoint("TOP", Minimap or UIParent, "BOTTOM", 0, -31)
     end
@@ -18,11 +18,11 @@ local function SavePosition()
     local x, y = bar:GetCenter()
     if not x or not y then return end
     local scale = bar:GetEffectiveScale() / UIParent:GetEffectiveScale()
-    MiniStatsDB.position = { x = x * scale, y = y * scale }
+    LH_StatsDB.position = { x = x * scale, y = y * scale }
     RestorePosition()
 end
 local function Layout()
-    local source = MiniExpBarFrame or Minimap
+    local source = LH_ExpBarFrame or Minimap
     if not source then return end
     local width = source:GetWidth() * source:GetEffectiveScale() / bar:GetEffectiveScale()
     if width <= 0 then return end
@@ -94,8 +94,8 @@ local function ShowTooltip(self)
     GameTooltip:Show()
 end
 local function CreateBar()
-    MiniStatsDB = type(MiniStatsDB) == "table" and MiniStatsDB or {}
-    bar = CreateFrame("Frame", "MiniStatsFrame", UIParent)
+    LH_StatsDB = type(LH_StatsDB) == "table" and LH_StatsDB or {}
+    bar = CreateFrame("Frame", "LH_StatsFrame", UIParent)
     bar:SetSize(140, 20)
     bar:SetFrameStrata("MEDIUM")
     bar:SetMovable(true)
@@ -147,7 +147,7 @@ events:SetScript("OnEvent", function(_, event, name)
     end
     if not initialized then return end
     UpdateStats()
-    if event == "PLAYER_ENTERING_WORLD" and not MiniStatsDB.position then RestorePosition() end
+    if event == "PLAYER_ENTERING_WORLD" and not LH_StatsDB.position then RestorePosition() end
 end)
 local elapsedSinceCheck = 0
 events:SetScript("OnUpdate", function(_, elapsed)
@@ -157,14 +157,14 @@ events:SetScript("OnUpdate", function(_, elapsed)
         if initialized then Layout() end
     end
 end)
-SLASH_MINISTATS1 = "/ministats"
-SlashCmdList.MINISTATS = function(message)
+SLASH_LH_STATS1 = "/lh_stats"
+SlashCmdList.LH_STATS = function(message)
     if not initialized then return end
     if (message or ""):lower():match("^%s*reset%s*$") then
-        MiniStatsDB.position = nil
+        LH_StatsDB.position = nil
         RestorePosition()
         UpdateStats()
     else
-        print("MiniStats: /ministats reset - Reset position. Hold the left mouse button and drag to move.")
+        print("LH_Stats: /lh_stats reset - Reset position. Hold the left mouse button and drag to move.")
     end
 end

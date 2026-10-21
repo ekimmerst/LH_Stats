@@ -1,8 +1,10 @@
-# MiniStats
+# LH_Stats
+
+Version: 1.0.1
 
 **A compact World of Warcraft addon for WoW Forever Beta.**
 
-MiniStats displays your gold, silver, copper, free bag slots, and remaining ammunition in a transparent bar below the minimap.
+LH_Stats displays your gold, silver, copper, free bag slots, and remaining ammunition in a transparent bar below the minimap.
 
 ## Features
 
@@ -11,24 +13,38 @@ MiniStats displays your gold, silver, copper, free bag slots, and remaining ammu
 - Remaining selected ammunition with its item icon, including ammunition carried in quivers and ammo pouches.
 - Automatic updates and tooltips with additional details.
 - Freely draggable bar with its position saved per character.
-- Matches the width of MiniExpBar or the minimap. MiniExpBar is optional.
+- Matches the width of LH_ExpBar or the minimap. LH_ExpBar is optional.
 
 ## Installation
 
-1. Download the repository and rename the extracted addon folder to `MiniStats`.
-2. Copy it to `World of Warcraft/<game-version>/Interface/AddOns/`. The files `MiniStats.toc` and `MiniStats.lua` must be directly inside the `MiniStats` folder.
-3. Restart the game and enable **MiniStats** in the addon list on the character selection screen.
+1. Name the addon folder `LH_Stats`.
+2. Copy it to `World of Warcraft/<game-version>/Interface/AddOns/`. The files `LH_Stats.toc` and `LH_Stats.lua` must be directly inside the `LH_Stats` folder.
+3. Restart the game and enable **LH_Stats** in the addon list on the character selection screen.
 
 ## Usage
 
-The bar automatically appears below MiniExpBar, if available, or below the minimap. The bag number shows only free slots. Ammo shows the remaining count of your currently selected ammunition, or `0` if none is selected.
+The bar automatically appears below LH_ExpBar, if available, or below the minimap. The bag number shows only free slots. Ammo shows the remaining count of your currently selected ammunition, or `0` if none is selected.
 
 Hold the **left mouse button** on the bar to drag it. Use the following command to reset its position:
 
 ```text
-/ministats reset
+/lh_stats reset
 ```
 
 ## Compatibility
 
 Designed for **WoW Forever Beta**, interface version **16001**. No other addons are required.
+
+## Upgrading from MiniStats
+
+Replace the old folder with **LH_Stats** and fully restart WoW. Do not enable both versions together. The reset command is now `/lh_stats reset`.
+
+To retain your position, close WoW and back up each character's `WTF/Account/<account>/<realm>/<character>/SavedVariables/MiniStats.lua` file. Copy it to `LH_Stats.lua` in the same SavedVariables folder, then change `MiniStatsDB` to `LH_StatsDB` inside the copy. Migrate before first using the renamed addon; do not overwrite an existing `LH_Stats.lua` containing settings you want to keep. Without migration, the display uses its default position.
+
+## Changelog
+
+### 1.0.1 - 2026-10-21
+
+- Renamed MiniStats to LH_Stats, including the folder, Lua/TOC and icon filenames, metadata, icon path, frame name, chat messages and saved-variable table.
+- Changed the reset command to `/lh_stats reset`.
+- Updated the optional LH_ExpBar integration and English documentation, including saved-position migration instructions.
