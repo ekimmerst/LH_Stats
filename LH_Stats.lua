@@ -126,9 +126,16 @@ local function CreateBar()
         if i > 1 then icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) end
         cell.text = cell:CreateFontString(nil, "OVERLAY")
         cell.text:SetPoint("LEFT", icon, "RIGHT", 3, 0)
-        cell.text:SetFont(STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-        cell.text:SetShadowColor(0, 0, 0, 1)
-        cell.text:SetShadowOffset(1, -1)
+        local style = ObjectiveTrackerLineFont or GameFontHighlightSmall
+        if style then
+            cell.text:SetFontObject(style)
+            local font, _, flags = style:GetFont()
+            cell.text:SetFont(font, 10, flags or "")
+        else
+            cell.text:SetFont(STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF", 10, "")
+            cell.text:SetShadowColor(0, 0, 0, 1)
+            cell.text:SetShadowOffset(1, -1)
+        end
         cells[i] = cell
     end
     cells[1].text:SetTextColor(1, 0.82, 0)

@@ -1,6 +1,6 @@
 # LH_Stats
 
-Version: 1.0.1
+Version: 1.0.2
 
 **A compact World of Warcraft addon for WoW Forever Beta.**
 
@@ -42,6 +42,10 @@ Replace the old folder with **LH_Stats** and fully restart WoW. Do not enable bo
 To retain your position, close WoW and back up each character's `WTF/Account/<account>/<realm>/<character>/SavedVariables/MiniStats.lua` file. Copy it to `LH_Stats.lua` in the same SavedVariables folder, then change `MiniStatsDB` to `LH_StatsDB` inside the copy. Migrate before first using the renamed addon; do not overwrite an existing `LH_Stats.lua` containing settings you want to keep. Without migration, the display uses its default position.
 
 ## Changelog
+
+### 1.0.2 - 2026-10-21
+
+- Matched the money, bag-slot and ammunition text font and shadow to LH_Skills.
 
 ### 1.0.1 - 2026-10-21
 
