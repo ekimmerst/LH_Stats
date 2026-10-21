@@ -33,7 +33,7 @@ Hold the **left mouse button** on the bar to drag it. Use the following command 
 
 ## Compatibility
 
-Designed for **WoW Forever Beta**, interface version **16001**. No other addons are required.
+Designed for **WoW Forever Beta**, interface version **16001**. Requires LH_Tweaks; LH_ExpBar is optional.
 
 ## Upgrading from MiniStats
 
@@ -48,3 +48,7 @@ To retain your position, close WoW and back up each character's `WTF/Account/<ac
 - Renamed MiniStats to LH_Stats, including the folder, Lua/TOC and icon filenames, metadata, icon path, frame name, chat messages and saved-variable table.
 - Changed the reset command to `/lh_stats reset`.
 - Updated the optional LH_ExpBar integration and English documentation, including saved-position migration instructions.
+
+## Required core addon
+
+Install and enable **LH_Tweaks** alongside this addon. LH_Tweaks is the shared LiteHawk configuration host and must load first. CurseForge releases must list LH_Tweaks as a required dependency so the client installs it automatically.
