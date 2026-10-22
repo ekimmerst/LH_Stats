@@ -1,5 +1,7 @@
 <h1 style="color: #d9a94b;">LH Stats</h1>
 
+<p>Keep your money, free bag slots, and remaining ammunition visible in a small bar below the minimap.</p>
+
 <p>The little numbers I check often, kept in one quiet place. LH Stats shows money, free bag slots and remaining ammunition below the minimap.</p>
 
 <h2 style="color: #73c9c4;">What it shows</h2>
