@@ -42,7 +42,7 @@ local function Build(category, layout)
     end
     layout:AddInitializer(CreateSettingsButtonInitializer("Restore the default size and position", "Reset layout",
         function() Command("reset") end,
-        "Match the width of LH_ExpBar, restore the default height and place the bar 5 pixels below LH_ExpBar. Keep the current lock setting.", true))
+        "Match the width of LH_ExpBar, restore the default height and place the bar 2 pixels below LH_ExpBar. Keep the current lock setting.", true))
     EventRegistry:RegisterCallback("Settings.CategoryDefaulted", function(_, selected)
         if selected == category then Defaults() end
     end, Addon)

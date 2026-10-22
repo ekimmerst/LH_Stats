@@ -20,7 +20,7 @@ local function RestorePosition()
     if type(p) == "table" and type(p.x) == "number" and type(p.y) == "number" then
         bar:SetPoint("CENTER", UIParent, "BOTTOMLEFT", p.x, p.y)
     elseif LH_ExpBarFrame and LH_ExpBarFrame:IsShown() then
-        bar:SetPoint("TOP", LH_ExpBarFrame, "BOTTOM", 0, -5)
+        bar:SetPoint("TOP", LH_ExpBarFrame, "BOTTOM", 0, -2)
     else
         local cluster = MinimapCluster
         local container = cluster and cluster.MinimapContainer

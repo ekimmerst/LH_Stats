@@ -25,7 +25,7 @@ LH_Stats displays your gold, silver, copper, free bag slots, and remaining ammun
 
 The bar automatically appears below LH_ExpBar, if available, or below the minimap. The bag number shows only free slots. Ammo shows the remaining count of your currently selected ammunition, or `0` if none is selected.
 
-Open WoW Settings > AddOns > LH Tweaks > LH Stats. **Unlock the stats bar** shows a preview backdrop and a small circle below the right edge: left-drag the bar to move it, drag the circle to resize width and height. The page also has width/height sliders (50-200%) and **Reset layout**, which matches the width of LH_ExpBar (or the minimap), restores the default height and places the bar 5 pixels below LH_ExpBar. The bar is locked by default.
+Open WoW Settings > AddOns > LH Tweaks > LH Stats. **Unlock the stats bar** shows a preview backdrop and a small circle below the right edge: left-drag the bar to move it, drag the circle to resize width and height. The page also has width/height sliders (50-200%) and **Reset layout**, which matches the width of LH_ExpBar (or the minimap), restores the default height and places the bar 2 pixels below LH_ExpBar. The bar is locked by default.
 
 ```text
 /lh_stats unlock | lock | reset
