@@ -45,5 +45,13 @@
 
 <p><strong>LH Tweaks is required</strong> and must be installed alongside LH Stats. LH ExpBar is optional. I built this for my own UI, but I'm happy if it saves you a few clicks too. Please leave feedback and suggestions in the CurseForge comments.</p>
 
+<h2 style="color: #73c9c4;">Changelog</h2>
+
+<p><strong>1.1.0 - Forever</strong></p>
+
+<ul>
+  <li>No gameplay changes in this Forever branch; money, free bag slots and ammunition remain visible below the minimap.</li>
+</ul>
+
 <hr>
-<p><sup>*</sup> Implemented with the help of Codex and GPT-6-SOL and tested by me as thoroughly as I could in the WoW beta client. If a value is missing or wrong, please report it.</p>
+<p><sup>*</sup> Implemented with the help of Codex and GPT-6-SOL. If a value is missing or wrong, please report it.</p>
