@@ -6,6 +6,8 @@ LH_Stats = Addon
 local initialized = false
 local freeSlots, totalSlots = 0, 0
 local ammoCount = 0
+local hasAmmoSlot = (not WOW_PROJECT_MAINLINE or WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE)
+    and GetInventorySlotInfo and GetInventorySlotInfo("AmmoSlot") ~= nil
 local function StandardWidth()
     local source = LH_ExpBarFrame or Minimap
     if not source then return 140 end
@@ -87,14 +89,15 @@ local function UpdateStats()
     end
     cells[2].text:SetText(tostring(freeSlots))
     cells[2].text:SetTextColor(1, freeSlots == 0 and 0.25 or 1, freeSlots == 0 and 0.2 or 1)
-    local ammoSlot = GetInventorySlotInfo("AmmoSlot") or 0
-    local ammoTexture = GetInventoryItemTexture("player", ammoSlot)
-    -- The ammo slot reports the selected ammunition's total across carried bags.
-    -- An empty slot can report 1, so check its texture before using the count.
-    ammoCount = ammoTexture and (GetInventoryItemCount("player", ammoSlot) or 0) or 0
-    cells[3].icon:SetTexture(ammoTexture or "Interface\\Icons\\INV_Ammo_Arrow_02")
-    cells[3].text:SetText(tostring(ammoCount))
-    cells[3].text:SetTextColor(1, ammoCount == 0 and 0.25 or 1, ammoCount == 0 and 0.2 or 1)
+    if hasAmmoSlot then
+        local ammoSlot = GetInventorySlotInfo("AmmoSlot")
+        local ammoTexture = GetInventoryItemTexture("player", ammoSlot)
+        -- The ammo slot reports the selected ammunition's total across carried bags.
+        ammoCount = ammoTexture and (GetInventoryItemCount("player", ammoSlot) or 0) or 0
+        cells[3].icon:SetTexture(ammoTexture or "Interface\\Icons\\INV_Ammo_Arrow_02")
+        cells[3].text:SetText(tostring(ammoCount))
+        cells[3].text:SetTextColor(1, ammoCount == 0 and 0.25 or 1, ammoCount == 0 and 0.2 or 1)
+    end
     Layout()
 end
 local function ShowTooltip(self)
@@ -143,7 +146,8 @@ local function CreateBar()
     bar:SetScript("OnDragStop", stopDrag)
     bar:SetScript("OnHide", function() StopMoving(); FinishResize() end)
     cells = {}
-    local icons = { "Interface\\MoneyFrame\\UI-GoldIcon", "Interface\\Icons\\INV_Misc_Bag_08", "Interface\\Icons\\INV_Ammo_Arrow_02" }
+    local icons = { "Interface\\MoneyFrame\\UI-GoldIcon", "Interface\\Icons\\INV_Misc_Bag_08" }
+    if hasAmmoSlot then icons[3] = "Interface\\Icons\\INV_Ammo_Arrow_02" end
     for i = 1, #icons do
         local cell = CreateFrame("Frame", nil, bar)
         cell.index = i

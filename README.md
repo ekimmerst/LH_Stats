@@ -18,6 +18,8 @@
 
 <p>Open <strong>Options → AddOns → LH Tweaks → LH Stats</strong>. Unlock the bar to drag it, resize it with the small handle or use the width and height sliders. A reset button restores its default layout.</p>
 
+<p><strong>Retail 12.1.5:</strong> The ammo cell is omitted because Retail has no equipped ammo slot. Money and free bag slots remain visible.</p>
+
 <h2 style="color: #73c9c4;">More LH addons</h2>
 
 <p>Choose only the pieces you want. Each companion addon also requires LH Tweaks.</p>

@@ -38,6 +38,7 @@ function CreateFrame(kind, name, parent)
   if name then _G[name] = f end
   return f
 end
+WOW_PROJECT_MAINLINE = 1; WOW_PROJECT_ID = 1
 UIParent = CreateFrame('Frame'); Minimap = CreateFrame('Frame'); Minimap.width = 160
 GameTooltip = CreateFrame('Frame')
 function GameTooltip:IsOwned() return false end
@@ -55,6 +56,9 @@ lua.execute('''
 local events
 for _, f in ipairs(frames) do if f.scripts.OnEvent then events = f end end
 events.scripts.OnEvent(events, 'ADDON_LOADED', 'LH_Stats')
+local textures = 0
+for _, f in ipairs(frames) do if f.kind == 'Texture' then textures = textures + 1 end end
+assert(textures == 4) -- Preview, two stat icons, and resize handle; no Retail ammo cell.
 local ev
 for _, f in ipairs(frames) do if f.scripts.OnUpdate then ev = f end end
 function tick() ev.scripts.OnUpdate(ev, 0.6) end
@@ -68,7 +72,7 @@ LH_StatsFrame.scripts.OnDragStart(); assert(not LH_StatsFrame.movingNow)
 LH_ExpBarFrame = CreateFrame('Frame', 'LH_ExpBarFrame'); LH_ExpBarFrame.width = 200; LH_ExpBarFrame.visible = true
 function LH_ExpBarFrame:IsShown() return self.visible end
 SlashCmdList.LH_STATS('reset'); tick()
-assert(LH_StatsFrame.width == 200 and LH_StatsFrame.point[2] == LH_ExpBarFrame and LH_StatsFrame.point[5] == -5)
+assert(LH_StatsFrame.width == 200 and LH_StatsFrame.point[2] == LH_ExpBarFrame and LH_StatsFrame.point[5] == -2)
 -- Unlock: move and resize become available.
 SlashCmdList.LH_STATS('unlock')
 assert(LH_StatsFrame.mouse and LH_StatsResizeHandle.visible and LH_StatsFrame.preview.visible)
@@ -83,7 +87,7 @@ mouseDown = false; tick()
 -- Reset: back to the ExpBar width and 10 px below it.
 SlashCmdList.LH_STATS('reset'); tick()
 assert(LH_StatsDB.position == nil and LH_StatsFrame.width == 200 and LH_StatsFrame.height == 20)
-assert(LH_StatsFrame.point[2] == LH_ExpBarFrame and LH_StatsFrame.point[5] == -5)
+assert(LH_StatsFrame.point[2] == LH_ExpBarFrame and LH_StatsFrame.point[5] == -2)
 SlashCmdList.LH_STATS('lock'); assert(not LH_StatsFrame.mouse and not LH_StatsResizeHandle.visible)
 ''')
 print('PASS: LH_Stats lock/unlock, move, resize and reset below LH_ExpBar')
