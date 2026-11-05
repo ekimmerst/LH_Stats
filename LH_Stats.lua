@@ -125,6 +125,8 @@ local function CreateBar()
         local value = LH_StatsDB[key]
         LH_StatsDB[key] = type(value) == "number" and math.max(0.5, math.min(2, value)) or 1
     end
+    LH_LayoutProfiles:Register(ADDON_NAME, LH_StatsDB, LH_StatsDB,
+        {"position", "widthFactor", "heightFactor", "locked"})
     bar = CreateFrame("Frame", "LH_StatsFrame", UIParent)
     bar:SetSize(140, HEIGHT)
     bar:SetFrameStrata("MEDIUM")

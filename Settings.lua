@@ -19,6 +19,7 @@ local function Defaults()
 end
 
 local function Build(category, layout)
+    LH_LayoutProfiles:AddSetting(category, layout, addonName)
     Header(layout, "Positioning")
     local variable = "LH_Stats_locked"
     variables[#variables + 1] = variable

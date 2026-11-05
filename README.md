@@ -20,6 +20,10 @@
 
 <p><strong>Retail 12.1.5:</strong> The ammo cell is omitted because Retail has no equipped ammo slot. Money and free bag slots remain visible.</p>
 
+<h2 style="color: #c78be6;">Settings profiles</h2>
+
+<p>Choose a character under <strong>Use settings from</strong> to share the stats bar position, width, height and lock state. LH Tweaks can apply its selected source to all LH addons. <strong>This character</strong> restores your own bar settings. Money, bag space and ammunition always show the current character's values.</p>
+
 <h2 style="color: #73c9c4;">More LH addons</h2>
 
 <p>Choose only the pieces you want. Most companion addons require LH Tweaks; LH NameplateQuestInfo also works without it.</p>
@@ -48,6 +52,12 @@
 <p><strong>LH Tweaks is required</strong> and must be installed alongside LH Stats. LH ExpBar is optional. I built this for my own UI, but I'm happy if it saves you a few clicks too. Please leave feedback and suggestions in the CurseForge comments.</p>
 
 <h2 style="color: #73c9c4;">Changelog</h2>
+
+<p><strong>1.2.0 - Forever and Retail</strong></p>
+
+<ul>
+  <li>Added character settings profiles for bar position, size and lock state; live stats remain character-specific.</li>
+</ul>
 
 <p><strong>1.1.0 - Forever</strong></p>
 
