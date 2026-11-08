@@ -8,6 +8,7 @@ local freeSlots, totalSlots = 0, 0
 local ammoCount = 0
 local hasAmmoSlot = (not WOW_PROJECT_MAINLINE or WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE)
     and GetInventorySlotInfo and GetInventorySlotInfo("AmmoSlot") ~= nil
+local showAmmo
 local function StandardWidth()
     local source = LH_ExpBarFrame or Minimap
     if not source then return 140 end
@@ -66,6 +67,8 @@ local function Layout()
         cell:ClearAllPoints()
         if i == 1 then
             cell:SetPoint("LEFT", bar, "LEFT", 0, 0)
+        elseif #cells == 2 then
+            cell:SetPoint("RIGHT", bar, "RIGHT", 0, 0)
         else
             cell:SetPoint("LEFT", cells[i - 1], "RIGHT", gap, 0)
         end
@@ -89,7 +92,7 @@ local function UpdateStats()
     end
     cells[2].text:SetText(tostring(freeSlots))
     cells[2].text:SetTextColor(1, freeSlots == 0 and 0.25 or 1, freeSlots == 0 and 0.2 or 1)
-    if hasAmmoSlot then
+    if showAmmo then
         local ammoSlot = GetInventorySlotInfo("AmmoSlot")
         local ammoTexture = GetInventoryItemTexture("player", ammoSlot)
         -- The ammo slot reports the selected ammunition's total across carried bags.
@@ -119,6 +122,8 @@ local function ShowTooltip(self)
     GameTooltip:Show()
 end
 local function CreateBar()
+    local _, class = UnitClass("player")
+    showAmmo = hasAmmoSlot and (class == "HUNTER" or class == "ROGUE" or class == "WARRIOR")
     LH_StatsDB = type(LH_StatsDB) == "table" and LH_StatsDB or {}
     if LH_StatsDB.locked == nil then LH_StatsDB.locked = true end
     for _, key in ipairs({"widthFactor", "heightFactor"}) do
@@ -149,7 +154,7 @@ local function CreateBar()
     bar:SetScript("OnHide", function() StopMoving(); FinishResize() end)
     cells = {}
     local icons = { "Interface\\MoneyFrame\\UI-GoldIcon", "Interface\\Icons\\INV_Misc_Bag_08" }
-    if hasAmmoSlot then icons[3] = "Interface\\Icons\\INV_Ammo_Arrow_02" end
+    if showAmmo then icons[3] = "Interface\\Icons\\INV_Ammo_Arrow_02" end
     for i = 1, #icons do
         local cell = CreateFrame("Frame", nil, bar)
         cell.index = i
