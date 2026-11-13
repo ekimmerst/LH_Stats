@@ -52,29 +52,50 @@ local function Layout()
     UpdateSize()
     local width = bar:GetWidth()
     if width <= 0 then return end
+    local visibleCells = { cells[1], cells[2] }
+    if showAmmo then visibleCells[3] = cells[3] end
     -- Spread the stats across the bar; shrink text only if space runs out.
     local textWidths, totalTextWidth = {}, 0
-    for i, cell in ipairs(cells) do
+    for i, cell in ipairs(visibleCells) do
         cell.text:SetScale(1)
         textWidths[i] = math.max(1, cell.text:GetStringWidth())
         totalTextWidth = totalTextWidth + textWidths[i]
     end
-    local available = math.max(2, width - 18 * #cells - 8)
+    local available = math.max(2, width - 18 * #visibleCells - 8)
     local textScale = math.min(1, available / totalTextWidth)
-    local gap = math.max(0, (width - 18 * #cells - totalTextWidth * textScale) / (#cells - 1))
-    for i, cell in ipairs(cells) do
+    local gap = math.max(0, (width - 18 * #visibleCells - totalTextWidth * textScale) / (#visibleCells - 1))
+    for i, cell in ipairs(visibleCells) do
         cell:SetSize(18 + textWidths[i] * textScale, bar:GetHeight())
         cell:ClearAllPoints()
         if i == 1 then
             cell:SetPoint("LEFT", bar, "LEFT", 0, 0)
-        elseif #cells == 2 then
+        elseif #visibleCells == 2 then
             cell:SetPoint("RIGHT", bar, "RIGHT", 0, 0)
         else
-            cell:SetPoint("LEFT", cells[i - 1], "RIGHT", gap, 0)
+            cell:SetPoint("LEFT", visibleCells[i - 1], "RIGHT", gap, 0)
         end
         cell.text:SetScale(textScale)
     end
 end
+local function IsThrownWeaponEquipped()
+    local rangedSlot = GetInventorySlotInfo("RangedSlot") or INVSLOT_RANGED
+    if not rangedSlot then return false end
+    local item = GetInventoryItemID and GetInventoryItemID("player", rangedSlot)
+    item = item or GetInventoryItemLink("player", rangedSlot)
+    if not item then return false end
+    local getInstant = C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+    if getInstant then
+        local _, _, _, equipLoc, _, classID, subClassID = getInstant(item)
+        -- Thrown weapons are weapon class 2, subclass 16, even if their equip type differs.
+        if equipLoc == "INVTYPE_THROWN" or (classID == 2 and subClassID == 16) then return true end
+    end
+    if GetItemInfo then
+        local _, _, _, _, _, _, _, _, equipLoc, _, _, classID, subClassID = GetItemInfo(item)
+        return equipLoc == "INVTYPE_THROWN" or (classID == 2 and subClassID == 16)
+    end
+    return false
+end
+
 local function UpdateStats()
     if not initialized then return end
     local money = GetMoney() or 0
@@ -92,6 +113,10 @@ local function UpdateStats()
     end
     cells[2].text:SetText(tostring(freeSlots))
     cells[2].text:SetTextColor(1, freeSlots == 0 and 0.25 or 1, freeSlots == 0 and 0.2 or 1)
+    if cells[3] then
+        showAmmo = not IsThrownWeaponEquipped()
+        cells[3]:SetShown(showAmmo)
+    end
     if showAmmo then
         local ammoSlot = GetInventorySlotInfo("AmmoSlot")
         local ammoTexture = GetInventoryItemTexture("player", ammoSlot)

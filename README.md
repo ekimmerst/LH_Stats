@@ -9,7 +9,7 @@
 <ul>
   <li>Your money at a glance.</li>
   <li>How many bag slots are free.</li>
-  <li>Remaining ammunition for hunters, rogues and warriors in Forever.</li>
+  <li>Remaining ammunition for hunters, rogues and warriors in Forever when no throwing weapon is equipped.</li>
 </ul>
 
 <p>The bar can line up with LH ExpBar when that addon is installed, or use the minimap width on its own.</p>
@@ -18,7 +18,7 @@
 
 <p>Open <strong>Options → AddOns → LH Tweaks → LH Stats</strong>. Unlock the bar to drag it, resize it with the small handle or use the width and height sliders. A reset button restores its default layout.</p>
 
-<p>For classes without ammunition, the ammo cell is hidden. Money sits at the left edge of the bar and free bag slots at the right edge. Retail also omits the ammo cell because it has no equipped ammo slot.</p>
+<p>For classes without ammunition and while a throwing weapon is equipped, the ammo cell is hidden. Money sits at the left edge of the bar and free bag slots at the right edge. Retail also omits the ammo cell because it has no equipped ammo slot.</p>
 
 <h2 style="color: #c78be6;">Settings profiles</h2>
 
@@ -52,6 +52,13 @@
 <p><strong>LH Tweaks is required</strong> and must be installed alongside LH Stats. LH ExpBar is optional. I built this for my own UI, but I'm happy if it saves you a few clicks too. Please leave feedback and suggestions in the CurseForge comments.</p>
 
 <h2 style="color: #73c9c4;">Changelog</h2>
+
+<p><strong>1.2.2 - Forever and Retail</strong></p>
+
+<ul>
+  <li>Hide the ammunition cell while a throwing weapon is equipped, and restore it when switching back to a weapon that uses ammunition.</li>
+  <li>Identify throwing weapons by their weapon subclass so Small Throwing Knife and other infinite-use throwing weapons are handled correctly.</li>
+</ul>
 
 <p><strong>1.2.1 - Forever and Retail</strong></p>
 
