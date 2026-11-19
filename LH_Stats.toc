@@ -6,8 +6,9 @@
 ## IconTexture: Interface\AddOns\LH_Stats\Media\Icon.tga
 ## Notes: Compact money, free bag slots, and remaining ammo below the minimap.
 ## Author: LH_Stats
-## Version: 1.2.2
+## Version: 1.2.4
 ## OptionalDeps: LH_ExpBar
+## SavedVariables: LH_StatsMoneyDB
 ## SavedVariablesPerCharacter: LH_StatsDB
 
 LH_Stats.lua

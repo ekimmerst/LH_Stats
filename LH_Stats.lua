@@ -9,6 +9,29 @@ local ammoCount = 0
 local hasAmmoSlot = (not WOW_PROJECT_MAINLINE or WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE)
     and GetInventorySlotInfo and GetInventorySlotInfo("AmmoSlot") ~= nil
 local showAmmo
+
+local function CharacterKey(name, realm)
+    return realm .. "\031" .. name
+end
+
+local function CurrentCharacter()
+    local name = UnitName("player")
+    local realm = GetRealmName()
+    if not name or name == "" or not realm or realm == "" then return end
+    return name, realm, CharacterKey(name, realm)
+end
+
+local function SaveMoney()
+    local name, realm, key = CurrentCharacter()
+    if not key then return end
+    local _, class = UnitClass("player")
+    LH_StatsMoneyDB[key] = { name = name, realm = realm, class = class, money = GetMoney() or 0 }
+end
+
+local function MoneyText(money)
+    return string.format("|cffffd700%dg|r |cffc7c7cf%ds|r |cffeda55f%dc|r",
+        math.floor(money / 10000), math.floor(money / 100) % 100, money % 100)
+end
 local function StandardWidth()
     local source = LH_ExpBarFrame or Minimap
     if not source then return 140 end
@@ -132,8 +155,32 @@ local function ShowTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
     if self.index == 1 then
         GameTooltip:AddLine("Money", 1, 0.82, 0)
-        local money = GetMoney() or 0
-        GameTooltip:AddLine(string.format("%d gold, %d silver, %d copper", math.floor(money / 10000), math.floor(money / 100) % 100, money % 100), 1, 1, 1)
+        local name, realm, currentKey = CurrentCharacter()
+        local characters = {}
+        for key, entry in pairs(LH_StatsMoneyDB) do
+            if key ~= currentKey and type(entry) == "table" and type(entry.name) == "string"
+                and type(entry.realm) == "string" and type(entry.money) == "number" and entry.money >= 0 then
+                characters[#characters + 1] = entry
+            end
+        end
+        local _, class = UnitClass("player")
+        characters[#characters + 1] = { name = name or "Current character", realm = realm or "", class = class,
+            money = GetMoney() or 0, current = true }
+        table.sort(characters, function(a, b)
+            local aName, bName = a.name:lower(), b.name:lower()
+            if aName ~= bName then return aName < bName end
+            return a.realm < b.realm
+        end)
+        local total = 0
+        for _, entry in ipairs(characters) do
+            local color = RAID_CLASS_COLORS and RAID_CLASS_COLORS[entry.class]
+            local label = (entry.current and "> " or "") .. entry.name
+            GameTooltip:AddDoubleLine(label, MoneyText(entry.money),
+                color and color.r or 1, color and color.g or 1, color and color.b or 1, 1, 1, 1)
+            total = total + entry.money
+        end
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine("Total", MoneyText(total), 1, 0.82, 0, 1, 1, 1)
     elseif self.index == 2 then
         GameTooltip:AddLine("Bag slots", 1, 0.82, 0)
         GameTooltip:AddLine(string.format("%d free / %d total · %d occupied", freeSlots, totalSlots, totalSlots - freeSlots), 1, 1, 1)
@@ -150,6 +197,7 @@ local function CreateBar()
     local _, class = UnitClass("player")
     showAmmo = hasAmmoSlot and (class == "HUNTER" or class == "ROGUE" or class == "WARRIOR")
     LH_StatsDB = type(LH_StatsDB) == "table" and LH_StatsDB or {}
+    LH_StatsMoneyDB = type(LH_StatsMoneyDB) == "table" and LH_StatsMoneyDB or {}
     if LH_StatsDB.locked == nil then LH_StatsDB.locked = true end
     for _, key in ipairs({"widthFactor", "heightFactor"}) do
         local value = LH_StatsDB[key]
@@ -249,7 +297,9 @@ events:SetScript("OnEvent", function(_, event, name)
         return
     end
     if not initialized then return end
+    if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_MONEY" then SaveMoney() end
     UpdateStats()
+    if event == "PLAYER_MONEY" and GameTooltip:GetOwner() == cells[1] then ShowTooltip(cells[1]) end
     if event == "PLAYER_ENTERING_WORLD" and not LH_StatsDB.position then RestorePosition() end
 end)
 local elapsedSinceCheck = 0

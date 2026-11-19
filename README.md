@@ -7,7 +7,7 @@
 <h2 style="color: #73c9c4;">What it shows</h2>
 
 <ul>
-  <li>Your money at a glance.</li>
+  <li>Your money at a glance. Hover over it to see every visited character alphabetically and the total balance.</li>
   <li>How many bag slots are free.</li>
   <li>Remaining ammunition for hunters, rogues and warriors in Forever when no throwing weapon is equipped.</li>
 </ul>
@@ -19,6 +19,8 @@
 <p>Open <strong>Options → AddOns → LH Tweaks → LH Stats</strong>. Unlock the bar to drag it, resize it with the small handle or use the width and height sliders. A reset button restores its default layout.</p>
 
 <p>For classes without ammunition and while a throwing weapon is equipped, the ammo cell is hidden. Money sits at the left edge of the bar and free bag slots at the right edge. Retail also omits the ammo cell because it has no equipped ammo slot.</p>
+
+<p>Visit each alt once with LH Stats enabled to record its money and class. The account-wide total uses each character's last recorded balance, including characters on other realms. The current character is marked with an arrow. Characters recorded before class colors were added need another visit for their class color to appear.</p>
 
 <h2 style="color: #c78be6;">Settings profiles</h2>
 
@@ -52,6 +54,18 @@
 <p><strong>LH Tweaks is required</strong> and must be installed alongside LH Stats. LH ExpBar is optional. I built this for my own UI, but I'm happy if it saves you a few clicks too. Please leave feedback and suggestions in the CurseForge comments.</p>
 
 <h2 style="color: #73c9c4;">Changelog</h2>
+
+<p><strong>1.2.4 - Forever and Retail</strong></p>
+
+<ul>
+  <li>Sort all characters alphabetically in the money tooltip, color names by class, mark the current character and color each coin denomination.</li>
+</ul>
+
+<p><strong>1.2.3 - Forever and Retail</strong></p>
+
+<ul>
+  <li>Show the last recorded money of every visited alt and the account-wide total in the money tooltip.</li>
+</ul>
 
 <p><strong>1.2.2 - Forever and Retail</strong></p>
 

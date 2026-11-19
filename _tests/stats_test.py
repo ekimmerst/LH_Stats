@@ -41,15 +41,28 @@ end
 WOW_PROJECT_MAINLINE = 1; WOW_PROJECT_ID = 1
 UIParent = CreateFrame('Frame'); Minimap = CreateFrame('Frame'); Minimap.width = 160
 GameTooltip = CreateFrame('Frame')
-function GameTooltip:IsOwned() return false end
+GameTooltip.lines = {}
+function GameTooltip:SetOwner(owner) self.owner = owner; self.lines = {} end
+function GameTooltip:GetOwner() return self.owner end
+function GameTooltip:AddLine(text) self.lines[#self.lines + 1] = {text} end
+function GameTooltip:AddDoubleLine(left, right, lr, lg, lb)
+  self.lines[#self.lines + 1] = {left, right, lr, lg, lb}
+end
+function GameTooltip:Hide() self.owner = nil end
 cursorX, cursorY, mouseDown = 0, 0, false
 function GetCursorPosition() return cursorX, cursorY end
 function IsMouseButtonDown() return mouseDown end
-function GetMoney() return 12345 end
+playerName, playerRealm, playerClass, playerMoney = 'Zara', 'Realm', 'WARRIOR', 12345
+function UnitName() return playerName end
+function GetRealmName() return playerRealm end
+function UnitClass() return playerClass, playerClass end
+function GetMoney() return playerMoney end
 function GetInventorySlotInfo() return 0 end
 function GetInventoryItemTexture() return nil end
 function GetContainerNumSlots() return 16 end
 function GetContainerNumFreeSlots() return 4, 0 end
+LH_LayoutProfiles = {Register = function() end}
+RAID_CLASS_COLORS = {WARRIOR = {r = 0.8, g = 0.6, b = 0.4}, MAGE = {r = 0.2, g = 0.8, b = 1}}
 ''')
 lua.execute((addon / 'LH_Stats.lua').read_text(encoding='utf-8'), 'LH_Stats')
 lua.execute('''
@@ -89,5 +102,22 @@ SlashCmdList.LH_STATS('reset'); tick()
 assert(LH_StatsDB.position == nil and LH_StatsFrame.width == 200 and LH_StatsFrame.height == 20)
 assert(LH_StatsFrame.point[2] == LH_ExpBarFrame and LH_StatsFrame.point[5] == -2)
 SlashCmdList.LH_STATS('lock'); assert(not LH_StatsFrame.mouse and not LH_StatsResizeHandle.visible)
+-- Account-wide money: current character remains in alphabetical order and is counted only once.
+events.scripts.OnEvent(events, 'PLAYER_ENTERING_WORLD')
+assert(LH_StatsMoneyDB['Realm\\031Zara'].money == 12345)
+assert(LH_StatsMoneyDB['Realm\\031Zara'].class == 'WARRIOR')
+playerName, playerClass, playerMoney = 'Ada', 'MAGE', 25007
+events.scripts.OnEvent(events, 'PLAYER_ENTERING_WORLD')
+playerName, playerClass, playerMoney = 'Zara', 'WARRIOR', 10005
+events.scripts.OnEvent(events, 'PLAYER_MONEY')
+local moneyCell
+for _, f in ipairs(frames) do if f.index == 1 then moneyCell = f end end
+moneyCell.scripts.OnEnter(moneyCell)
+assert(GameTooltip.lines[2][1] == 'Ada' and GameTooltip.lines[2][2]:find('2g', 1, true))
+assert(GameTooltip.lines[2][3] == 0.2 and GameTooltip.lines[2][4] == 0.8)
+assert(GameTooltip.lines[3][1] == '> Zara')
+assert(GameTooltip.lines[3][3] == 0.8 and GameTooltip.lines[3][4] == 0.6)
+assert(GameTooltip.lines[5][1] == 'Total' and GameTooltip.lines[5][2]:find('3g', 1, true))
+assert(GameTooltip.lines[5][2]:find('|cffffd700', 1, true))
 ''')
-print('PASS: LH_Stats lock/unlock, move, resize and reset below LH_ExpBar')
+print('PASS: LH_Stats layout and account-wide money tooltip')
