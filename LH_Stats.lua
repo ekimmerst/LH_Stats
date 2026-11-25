@@ -9,6 +9,7 @@ local ammoCount = 0
 local hasAmmoSlot = (not WOW_PROJECT_MAINLINE or WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE)
     and GetInventorySlotInfo and GetInventorySlotInfo("AmmoSlot") ~= nil
 local showAmmo
+local currentName, currentRealm
 
 local function CharacterKey(name, realm)
     return realm .. "\031" .. name
@@ -17,7 +18,12 @@ end
 local function CurrentCharacter()
     local name = UnitName("player")
     local realm = GetRealmName()
-    if not name or name == "" or not realm or realm == "" then return end
+    if (not name or name == "") and UnitFullName then name, realm = UnitFullName("player") end
+    if not name or name == "" then name = currentName end
+    if not realm or realm == "" then realm = currentRealm end
+    if name and name ~= "" then currentName = name end
+    if realm and realm ~= "" then currentRealm = realm end
+    if not name or name == "" or not realm or realm == "" then return name, realm end
     return name, realm, CharacterKey(name, realm)
 end
 
@@ -28,9 +34,18 @@ local function SaveMoney()
     LH_StatsMoneyDB[key] = { name = name, realm = realm, class = class, money = GetMoney() or 0 }
 end
 
-local function MoneyText(money)
-    return string.format("|cffffd700%dg|r |cffc7c7cf%ds|r |cffeda55f%dc|r",
-        math.floor(money / 10000), math.floor(money / 100) % 100, money % 100)
+local function CoinText(amount, width, color, suffix)
+    if amount == 0 then return string.rep(" ", width + 1) end
+    local digits = tostring(amount)
+    return string.rep(" ", math.max(0, width - #digits)) .. "|c" .. color .. digits .. suffix .. "|r"
+end
+
+local function MoneyText(money, goldWidth)
+    if money == 0 then return "0" end
+    local text = CoinText(math.floor(money / 10000), goldWidth, "ffffd700", "g") .. " "
+        .. CoinText(math.floor(money / 100) % 100, 2, "ffc7c7cf", "s") .. " "
+        .. CoinText(money % 100, 2, "ffeda55f", "c")
+    return (text:gsub("%s+$", ""))
 end
 local function StandardWidth()
     local source = LH_ExpBarFrame or Minimap
@@ -158,9 +173,11 @@ local function ShowTooltip(self)
         local name, realm, currentKey = CurrentCharacter()
         local characters = {}
         for key, entry in pairs(LH_StatsMoneyDB) do
-            if key ~= currentKey and type(entry) == "table" and type(entry.name) == "string"
+            if type(entry) == "table" and type(entry.name) == "string"
                 and type(entry.realm) == "string" and type(entry.money) == "number" and entry.money >= 0 then
-                characters[#characters + 1] = entry
+                local sameCharacter = key == currentKey or (name and entry.name:lower() == name:lower()
+                    and (not realm or realm == "" or entry.realm:lower() == realm:lower()))
+                if not sameCharacter then characters[#characters + 1] = entry end
             end
         end
         local _, class = UnitClass("player")
@@ -171,16 +188,20 @@ local function ShowTooltip(self)
             if aName ~= bName then return aName < bName end
             return a.realm < b.realm
         end)
-        local total = 0
+        local total, goldWidth = 0, 1
+        for _, entry in ipairs(characters) do
+            total = total + entry.money
+            goldWidth = math.max(goldWidth, #tostring(math.floor(entry.money / 10000)))
+        end
+        goldWidth = math.max(goldWidth, #tostring(math.floor(total / 10000)))
         for _, entry in ipairs(characters) do
             local color = RAID_CLASS_COLORS and RAID_CLASS_COLORS[entry.class]
             local label = (entry.current and "> " or "") .. entry.name
-            GameTooltip:AddDoubleLine(label, MoneyText(entry.money),
+            GameTooltip:AddDoubleLine(label, MoneyText(entry.money, goldWidth),
                 color and color.r or 1, color and color.g or 1, color and color.b or 1, 1, 1, 1)
-            total = total + entry.money
         end
         GameTooltip:AddLine(" ")
-        GameTooltip:AddDoubleLine("Total", MoneyText(total), 1, 0.82, 0, 1, 1, 1)
+        GameTooltip:AddDoubleLine("Total", MoneyText(total, goldWidth), 1, 0.82, 0, 1, 1, 1)
     elseif self.index == 2 then
         GameTooltip:AddLine("Bag slots", 1, 0.82, 0)
         GameTooltip:AddLine(string.format("%d free / %d total · %d occupied", freeSlots, totalSlots, totalSlots - freeSlots), 1, 1, 1)

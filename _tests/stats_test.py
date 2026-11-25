@@ -119,5 +119,23 @@ assert(GameTooltip.lines[3][1] == '> Zara')
 assert(GameTooltip.lines[3][3] == 0.8 and GameTooltip.lines[3][4] == 0.6)
 assert(GameTooltip.lines[5][1] == 'Total' and GameTooltip.lines[5][2]:find('3g', 1, true))
 assert(GameTooltip.lines[5][2]:find('|cffffd700', 1, true))
+-- A stale record under a legacy key must not duplicate the current character.
+LH_StatsMoneyDB.legacy = {name = 'Zara', realm = 'Realm', class = 'WARRIOR', money = 999999}
+LH_StatsMoneyDB['Realm\\031Bert'] = {name = 'Bert', realm = 'Realm', class = 'MAGE', money = 1000000}
+function UnitName() return nil end
+function GetRealmName() return nil end
+moneyCell.scripts.OnEnter(moneyCell)
+assert(#GameTooltip.lines == 6)
+assert(GameTooltip.lines[4][1] == '> Zara' and GameTooltip.lines[4][2]:find('1g', 1, true))
+assert(GameTooltip.lines[6][1] == 'Total' and GameTooltip.lines[6][2]:find('103g', 1, true))
+local function plainMoney(line)
+  return (line[2]:gsub('|c%x%x%x%x%x%x%x%x', ''):gsub('|r', ''))
+end
+local ada, bert, zara = plainMoney(GameTooltip.lines[2]), plainMoney(GameTooltip.lines[3]), plainMoney(GameTooltip.lines[4])
+assert(ada:find('g') == bert:find('g') and bert:find('g') == zara:find('g'))
+assert(ada:find('c') == zara:find('c'))
+assert(bert:match('^%s*100g$') and not bert:find('s') and not bert:find('c'))
+assert(zara:find('1g', 1, true) and zara:find('5c', 1, true) and not zara:find('s'))
+assert(not zara:find('01g', 1, true) and not zara:find('05c', 1, true))
 ''')
 print('PASS: LH_Stats layout and account-wide money tooltip')
